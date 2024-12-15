@@ -6,6 +6,7 @@
 #include "memlayout.h"
 #include "mmu.h"
 #include "proc.h"
+// #include "proc.c"
 
 int
 sys_fork(void)
@@ -88,4 +89,20 @@ sys_uptime(void)
   xticks = ticks;
   release(&tickslock);
   return xticks;
+}
+
+int
+sys_set_limit(void)
+{
+  int limit;
+  struct proc *p = myproc();
+
+  if(argint(0, &limit) < 0)
+    return -1;
+
+  // TODO: This might need to be atomic?
+  myproc()->cpu_limit = limit;
+
+  cprintf("Limit set to %d\n", limit);
+  return 0;
 }

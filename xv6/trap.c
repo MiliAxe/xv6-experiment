@@ -46,11 +46,19 @@ trap(struct trapframe *tf)
     return;
   }
 
+  extern void reset_CPU_ticks(void);
+
   switch(tf->trapno){
   case T_IRQ0 + IRQ_TIMER:
     if(cpuid() == 0){
       acquire(&tickslock);
       ticks++;
+      
+      if (ticks % 100 == 0) {
+        // cprintf("Current second: %d, resetting ticks...\n", ticks);
+        reset_CPU_ticks();
+      }
+
       wakeup(&ticks);
       release(&tickslock);
     }

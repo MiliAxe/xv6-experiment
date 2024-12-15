@@ -88,6 +88,8 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  p->cpu_limit = 100; // Default CPU limit is 100%
+  p->cpu_ticks = 0; // Initialize CPU ticks used in the last second
 
   release(&ptable.lock);
 
@@ -319,6 +321,18 @@ wait(void)
 //  - swtch to start running that process
 //  - eventually that process transfers control
 //      via swtch back to the scheduler.
+
+void
+reset_CPU_ticks(void)
+{
+  struct proc *p;
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    p->cpu_ticks = 0;
+  }
+  release(&ptable.lock);
+}
+
 void
 scheduler(void)
 {
@@ -331,6 +345,11 @@ scheduler(void)
     // Enable interrupts on this processor.
     sti();
 
+    // if (ticks % 100 == 0) {
+    //   // cprintf("Current second: %d, resetting ticks...\n", ticks);
+    //   reset_CPU_ticks();
+    // }
+
     ran = 0;
 
     // Loop over process table looking for process to run.
@@ -339,7 +358,15 @@ scheduler(void)
       if(p->state != RUNNABLE)
         continue;
 
+      // Check if the process has exceeded its CPU limit
+      if(p->cpu_limit < p->cpu_ticks) {
+        // cprintf("Process %d exceeded its CPU limit\n", p->pid);
+        // cprintf("Process limit: %d, Process ticks: %d\n", p->cpu_limit, p->cpu_ticks);
+        continue;
+      }
+
       ran = 1;
+
 
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
@@ -347,6 +374,9 @@ scheduler(void)
       c->proc = p;
       switchuvm(p);
       p->state = RUNNING;
+      p->cpu_ticks += 1;
+
+      // cprintf("Current tick: %d\n", ticks);
 
       swtch(&(c->scheduler), p->context);
       switchkvm();
