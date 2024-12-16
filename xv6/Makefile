@@ -170,6 +170,7 @@ UPROGS=\
 	_echo\
 	_set_limit\
 	_uselessloop\
+	_test_memlimit\
 	_forktest\
 	_grep\
 	_init\

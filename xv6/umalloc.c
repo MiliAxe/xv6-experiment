@@ -3,11 +3,11 @@
 #include "user.h"
 #include "param.h"
 
+
 // Memory allocator by Kernighan and Ritchie,
 // The C programming Language, 2nd ed.  Section 8.7.
 
 typedef long Align;
-
 union header {
   struct {
     union header *ptr;
@@ -25,8 +25,13 @@ void
 free(void *ap)
 {
   Header *bp, *p;
-
   bp = (Header*)ap - 1;
+
+  int size = bp->s.size * sizeof(Header);
+  if (size != 32768) {
+    increase_mem_usage(-size);
+  }
+
   for(p = freep; !(bp > p && bp < p->s.ptr); p = p->s.ptr)
     if(p >= p->s.ptr && (bp > p || bp < p->s.ptr))
       break;
@@ -65,6 +70,20 @@ malloc(uint nbytes)
 {
   Header *p, *prevp;
   uint nunits;
+
+
+  // Check if the memory that is going to be allocated is
+  // bigger than the maximum size limit of a process
+  int memory_limit = get_mem_limit();
+  int memory_usage = get_mem_usage();
+
+  if (memory_limit != -1  && memory_usage + nbytes > memory_limit) {
+    printf(2, "Memory limit exceeded, memory_limit: %d, memory_usage: %d, memory requested: %d\n", memory_limit, memory_usage, nbytes);
+    return 0;
+  }
+
+  // Increase the memory usage of the process (there is enough memory)
+  increase_mem_usage(nbytes);
 
   nunits = (nbytes + sizeof(Header) - 1)/sizeof(Header) + 1;
   if((prevp = freep) == 0){

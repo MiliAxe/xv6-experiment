@@ -24,6 +24,11 @@ char* sbrk(int);
 int sleep(int);
 int uptime(void);
 int set_limit(int limit);
+int set_mem_limit(int limit);
+int get_mem_limit(void);
+int increase_mem_limit(int limit);
+int increase_mem_usage(int usage);
+int get_mem_usage(void);
 
 // ulib.c
 int stat(const char*, struct stat*);

@@ -21,3 +21,8 @@
 #define SYS_mkdir  20
 #define SYS_close  21
 #define SYS_set_limit 22
+#define SYS_set_mem_limit 23
+#define SYS_get_mem_limit 24
+#define SYS_increase_mem_limit 25
+#define SYS_increase_mem_usage 26
+#define SYS_get_mem_usage 27

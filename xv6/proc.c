@@ -90,6 +90,8 @@ found:
   p->pid = nextpid++;
   p->cpu_limit = 100; // Default CPU limit is 100%
   p->cpu_ticks = 0; // Initialize CPU ticks used in the last second
+  p->memory_limit = -1; // Default memory limit is unlimited
+  p->memory_used = 0; // Initialize memory used so far
 
   release(&ptable.lock);
 

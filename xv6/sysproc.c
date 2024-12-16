@@ -6,7 +6,6 @@
 #include "memlayout.h"
 #include "mmu.h"
 #include "proc.h"
-// #include "proc.c"
 
 int
 sys_fork(void)
@@ -105,4 +104,69 @@ sys_set_limit(void)
 
   cprintf("Limit set to %d\n", limit);
   return 0;
+}
+
+int
+sys_set_mem_limit(void)
+{
+  int limit;
+  struct proc *p = myproc();
+
+  if(argint(0, &limit) < 0)
+    return -1;
+  
+  p->memory_limit = limit;
+
+  return 0;
+}
+
+int
+sys_get_mem_limit(void)
+{
+  struct proc *p = myproc();
+
+  return p->memory_limit;
+}
+
+int
+sys_increase_mem_limit(void)
+{
+  int limit;
+  struct proc *p = myproc();
+
+  if(argint(0, &limit) < 0)
+    return -1;
+
+  p->memory_limit += limit;
+
+  return 0;
+}
+
+int
+sys_increase_mem_usage(void)
+{
+  int usage;
+  struct proc *p = myproc();
+
+  if(argint(0, &usage) < 0)
+    return -1;
+
+  // Don't increase memory usage if the process is sh
+  if (memcmp(p->name, "sh", 2) == 0) {
+    cprintf("ignored sh shell memory usage increase\n");
+    return 0;
+  }
+
+  p->memory_used += usage;
+  cprintf("Memory usage increased by %d, from process: %s\n", usage, p->name);
+
+  return 0;
+}
+
+int
+sys_get_mem_usage(void)
+{
+  struct proc *p = myproc();
+
+  return p->memory_used;
 }
