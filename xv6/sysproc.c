@@ -91,7 +91,7 @@ sys_uptime(void)
 }
 
 int
-sys_set_limit(void)
+sys_set_cpu_limit(void)
 {
   int limit;
   struct proc *p = myproc();
@@ -169,4 +169,21 @@ sys_get_mem_usage(void)
   struct proc *p = myproc();
 
   return p->memory_used;
+}
+
+int
+sys_set_limit(void)
+{
+  int cpu_limit, mem_limit;
+  struct proc *p = myproc();
+
+  if(argint(0, &cpu_limit) < 0)
+    return -1;
+  if(argint(1, &mem_limit) < 0)
+    return -1;
+
+  p->cpu_limit = cpu_limit;
+  p->memory_limit = mem_limit;
+
+  return 0;
 }

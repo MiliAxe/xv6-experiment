@@ -7,7 +7,7 @@ int test_cpu_limit(int limit, int ticks) {
     volatile int i = 0;
     int starting_time = uptime();
 
-    set_limit(limit);
+    set_cpu_limit(limit);
 
     while (i < ticks) {
         i++;
